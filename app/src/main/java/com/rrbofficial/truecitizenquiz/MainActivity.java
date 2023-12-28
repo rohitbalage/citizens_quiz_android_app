@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.rrbofficial.truecitizenquiz.databinding.ActivityMainBinding;
 import com.rrbofficial.truecitizenquiz.model.Question;
 
@@ -34,14 +35,48 @@ public class MainActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         binding.questionTextView.setText(questionBank[currentQuestionIndex].getAnswerResId() );
+        binding.trueButton.setOnClickListener(v -> checkAnswer(true));
 
+        binding.falseButton.setOnClickListener(v -> checkAnswer(false));
         binding.nextButton.setOnClickListener(v -> {
             Log.d("main", "onCreate: " + questionBank[currentQuestionIndex++].getAnswerResId());
 
         });
         binding.nextButton.setOnClickListener(v -> {
-            currentQuestionIndex +=currentQuestionIndex;
-            currentQuestionIndex=currentQuestionIndex+1;
+            currentQuestionIndex= (currentQuestionIndex+1) % questionBank.length;
+
+            updateQueston();
+
         });
+
+        binding.prevButton.setOnClickListener(v -> {
+            if(currentQuestionIndex > 0) {
+                currentQuestionIndex = (currentQuestionIndex -1) % questionBank.length;  //decrementing
+                updateQueston();
+
+            }
+
+        });
+    }
+
+    private void updateQueston() {
+       binding.questionTextView.setText(questionBank[currentQuestionIndex].getAnswerResId());
+
+    }
+
+    private void checkAnswer(boolean userChoseCorrect)
+    {
+        boolean answerIsCorrect =  questionBank[currentQuestionIndex].isAnswerTrue();
+        int messageId;
+        if(answerIsCorrect == userChoseCorrect)
+        {
+            messageId =R.string.correct_answer;
+
+        }
+        else {
+            messageId =R.string.wrong_answer;
+        }
+        Snackbar.make(binding.imageView, messageId, Snackbar.LENGTH_SHORT).show();
+
     }
 }
